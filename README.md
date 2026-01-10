@@ -138,6 +138,14 @@ python examples/gpu_burst.py --gb 1 --cycles 3
 python examples/gpu_sleep.py --gb 4 --sleep 120
 ```
 
+无需 PyTorch/GPU 的 mock 模式：
+
+```
+python examples/gpu_alloc.py --mock --gb 0.5
+python examples/gpu_burst.py --mock --gb 0.5 --cycles 2
+python examples/gpu_sleep.py --mock --gb 0.5 --sleep 5
+```
+
 模拟 OOM（无需 GPU）：
 
 ```

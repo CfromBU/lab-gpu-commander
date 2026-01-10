@@ -1,10 +1,7 @@
 import argparse
 import time
 
-try:
-    import torch
-except Exception:
-    torch = None
+torch = None
 
 
 def main() -> int:
@@ -12,7 +9,19 @@ def main() -> int:
     parser.add_argument("--gb", type=float, default=1.0)
     parser.add_argument("--cycles", type=int, default=5)
     parser.add_argument("--sleep", type=int, default=3)
+    parser.add_argument("--mock", action="store_true")
     args = parser.parse_args()
+
+    if args.mock:
+        print(f"[mock] burst {args.cycles} cycles at {args.gb} GB")
+        return 0
+
+    try:
+        import torch as torch_module
+    except Exception:
+        torch_module = None
+    global torch
+    torch = torch_module
 
     if torch is None:
         print("PyTorch not installed. Exiting.")
