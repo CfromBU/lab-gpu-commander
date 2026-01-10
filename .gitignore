@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+logs/
+.venv/
+.env/
+.DS_Store
+bin/gh.tar.gz
+bin/gh_2.57.0_linux_amd64/
