@@ -6,7 +6,7 @@ const LAST_MEM_KEY = "labgpu.lastMem";
 let lastOoms = 0;
 
 function runCli(command: string, cb: (err: Error | null, stdout: string, stderr: string) => void) {
-  exec(command, { shell: true }, (err, stdout, stderr) => {
+  exec(command, { shell: "/bin/bash" }, (err: Error | null, stdout: string, stderr: string) => {
     cb(err, stdout, stderr);
   });
 }

@@ -1,0 +1,50 @@
+{
+  "name": "lab-gpu",
+  "displayName": "Lab GPU",
+  "description": "Submit tasks to the lab GPU queue from VS Code.",
+  "version": "0.0.1",
+  "publisher": "lab-gpu",
+  "engines": {
+    "vscode": "^1.88.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./out/extension.js",
+  "activationEvents": [
+    "onCommand:labgpu.submit",
+    "onCommand:labgpu.showTasks"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "labgpu.submit",
+        "title": "Submit to GPU Queue"
+      },
+      {
+        "command": "labgpu.showTasks",
+        "title": "Show Running GPU Tasks"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "labgpu.submit",
+          "when": "editorTextFocus"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p ./tsconfig.json",
+    "watch": "tsc -watch -p ./tsconfig.json",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.88.0",
+    "typescript": "^5.3.0",
+    "underscore": "^1.13.7",
+    "vsce": "^2.15.0"
+  }
+}

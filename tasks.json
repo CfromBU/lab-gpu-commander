@@ -1,0 +1,6 @@
+{
+  "tasks": [
+    {"cmd": "python train_a.py", "mem": "10G", "priority": "normal"},
+    {"cmd": "python train_b.py", "min_vram_gb": 8, "priority": "high", "time_limit": 1200}
+  ]
+}

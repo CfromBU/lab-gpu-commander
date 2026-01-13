@@ -18,12 +18,23 @@
 python -m pip install .
 ```
 
+环境要求：
+- Python 3.10+
+
 可选依赖：
 
 ```
 python -m pip install ".[test]"
 python -m pip install ".[server]"  # FastAPI 可选依赖，后续扩展 API 用
+python -m pip install "pyyaml"      # 读取 policy.yaml 时可用（未安装时走简易解析）
 ```
+
+## 仓库结构
+- `lab_gpu/`：核心逻辑（CLI / Master / Scheduler / Agent / TUI）
+- `tests/`：pytest 测试
+- `examples/`：GPU 负载示例脚本
+- `vscode/`：VS Code 插件源码
+- `logs/`：本地日志示例目录（默认日志不写这里）
 
 ## CLI 快速开始
 注册节点、提交任务并触发调度：
@@ -67,6 +78,22 @@ lab-gpu logs 1 -f
 lab-gpu server preempt --task-id 1 --soft-timeout 300 --term-timeout 30
 ```
 
+## 命令速查
+- `lab-gpu server start --role master`：启动（demo 模式，仅本地内存）
+- `lab-gpu server add-node ...`：注册节点与 GPU 数量
+- `lab-gpu submit --mem 10G --priority normal "cmd"`：提交任务
+- `lab-gpu submit --mem 10G --dry-run "cmd"`：仅模拟分配（返回 JSON）
+- `lab-gpu server tick`：执行一次调度
+- `lab-gpu status` / `--json`：查看状态
+- `lab-gpu logs <id> [-f]`：查看任务日志
+- `lab-gpu server preempt --task-id <id>`：软/硬抢占
+- `lab-gpu agent run --task-id <id> --mem-used 10 "cmd"`：本地执行 + OOM 解析
+- `lab-gpu tui`：TUI 看板
+
+## 日志与权限
+- Agent 默认写日志到 `/nas/logs/{task_id}.log`，可用 `--log-root` 改路径。
+- 若无权限创建目录，`agent run` 会报错并退出。
+
 ## Policy 文件（夜间模式）
 示例 `policy.yaml`：
 
@@ -109,6 +136,39 @@ lab-gpu tui
 - 状态栏轮询 `lab-gpu status --json`
 - OOM 自动重试弹窗提示
 - QuickPick 查看运行中任务并打开日志
+
+可选配置（工作区根目录）：
+`.labgpu_config.json`
+```
+{
+  "default_mem": "10G"
+}
+```
+
+插件安装（源码构建）：
+```
+cd vscode
+npm install
+npm run compile
+```
+
+调试运行：
+- VS Code 打开 `vscode/` 目录，按 `F5` 启动 Extension Development Host
+
+打包 VSIX：
+```
+cd vscode
+npm install
+npm run compile
+npx vsce package
+```
+
+安装 VSIX：
+```
+code --install-extension lab-gpu-0.0.1.vsix
+```
+
+更详细说明见：`vscode/README.md`
 
 ## 测试
 
@@ -167,6 +227,44 @@ lab-gpu agent run --task-id 1 --mem-used 2 "python examples/gpu_alloc.py --gb 2 
 python -m lab_gpu.cli agent run --task-id 99 --mem-used 10 --log-root ./logs "python examples/gpu_oom.py --mock-oom"
 ```
 
+## 批量提交（JSON）
+新增命令：
+```
+lab-gpu submit-batch --file tasks.json
+lab-gpu submit-batch --file tasks.json --dry-run
+```
+
+支持两种 JSON 格式：
+
+1) 直接是数组
+```
+[
+  {"cmd": "python train_a.py", "mem": "10G", "priority": "normal"},
+  {"cmd": "python train_b.py", "mem": "12G", "priority": "high", "time_limit": 1200}
+]
+```
+
+2) 顶层对象包含 `tasks`
+```
+{
+  "tasks": [
+    {"cmd": "python train_a.py", "mem": "10G"},
+    {"cmd": "python train_b.py", "min_vram_gb": 8, "gpu_type": "RTX 3090"}
+  ]
+}
+```
+
+字段说明：
+- `cmd`：必填，命令字符串
+- `mem`：显存需求，例 `"10G"`
+- `min_vram_gb`：显存需求（数字），与 `mem` 二选一
+- `priority`：`high|normal|low`，默认 `normal`
+- `env`：可选 Conda 环境名
+- `gpu_type`：可选 GPU 型号匹配
+- `time_limit`：秒，用于回填策略
+
 ## 说明
 - 当前是单进程 Demo：Master/Agent 运行在同一 CLI 进程中。
+- 调度与状态全部在内存中，无持久化、无多节点通信。
+- GPU 利用率/僵尸进程判定逻辑仅在内存结构中模拟，不采集真实 GPU 指标。
 - 日志默认写入 `/nas/logs/{task_id}.log`，可通过 `agent run --log-root` 改路径。
