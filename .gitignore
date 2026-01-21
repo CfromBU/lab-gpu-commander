@@ -7,3 +7,4 @@ logs/
 .DS_Store
 bin/gh.tar.gz
 bin/gh_2.57.0_linux_amd64/
+.worktrees/
