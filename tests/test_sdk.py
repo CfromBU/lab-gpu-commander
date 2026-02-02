@@ -16,3 +16,12 @@ def test_acquire_sets_env(monkeypatch):
     assert os.environ.get("CUDA_VISIBLE_DEVICES") == str(placement.gpu_id)
     assert os.environ.get("LABGPU_ASSIGNED_NODE") == placement.node
     assert os.environ.get("LABGPU_ASSIGNED_GPU") == str(placement.gpu_id)
+
+import pytest
+from lab_gpu.sdk import LabGpuTimeoutError
+
+
+def test_timeout_zero_raises():
+    client = Client()
+    with pytest.raises(LabGpuTimeoutError):
+        client.request_device(mem="999G", timeout=0)
