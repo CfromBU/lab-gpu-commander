@@ -5,6 +5,7 @@ import os
 import time
 from typing import Optional
 
+from .agent import Agent
 from .master import Master
 from .models import GPU, Node, Priority, Task
 
@@ -18,6 +19,13 @@ class Placement:
     task_id: int
     node: str
     gpu_id: int
+
+
+@dataclass
+class RunResult:
+    exit_code: int
+    oom: object | None
+    stderr_tail: list[str]
 
 
 class LocalBackend:
@@ -87,6 +95,36 @@ class Client:
         os.environ["LABGPU_ASSIGNED_NODE"] = placement.node
         os.environ["LABGPU_ASSIGNED_GPU"] = str(placement.gpu_id)
         return placement
+
+    def run(
+        self,
+        *,
+        cmd: str,
+        mem: str,
+        priority: str = "normal",
+        timeout: Optional[float] = None,
+        gpu_type: Optional[str] = None,
+        time_limit: Optional[int] = None,
+        env: Optional[str] = None,
+        log_root: str = "/nas/logs",
+        mem_used: float = 0.0,
+    ) -> RunResult:
+        placement = self.acquire(
+            mem=mem,
+            priority=priority,
+            timeout=timeout,
+            gpu_type=gpu_type,
+            time_limit=time_limit,
+        )
+        agent = Agent()
+        exit_code, oom = agent.run_task(
+            placement.task_id,
+            cmd,
+            env,
+            current_used_gb=mem_used,
+            log_root=log_root,
+        )
+        return RunResult(exit_code=exit_code, oom=oom, stderr_tail=[])
 
 
 def _parse_mem_gb(value: str) -> float:

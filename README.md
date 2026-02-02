@@ -12,6 +12,17 @@
 - Textual TUI 看板（支持 kill / retry / top）
 - VS Code 右键提交 + 状态栏轮询 + OOM 提示
 
+```mermaid
+flowchart TB
+    app[Python 程序] --> sdk[labgpu SDK]
+    sdk --> backend[LocalBackend\nMaster/Scheduler]
+    backend --> nodes[GPU 节点]
+
+    sdk -. 托管运行 .-> agent[Agent]
+    agent --> cmd[训练命令]
+    cmd --> logs[日志/错误回传]
+```
+
 ## 安装
 
 ```

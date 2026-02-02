@@ -25,3 +25,9 @@ def test_timeout_zero_raises():
     client = Client()
     with pytest.raises(LabGpuTimeoutError):
         client.request_device(mem="999G", timeout=0)
+
+
+def test_run_returns_exit_code():
+    client = Client()
+    result = client.run(cmd="python -c 'import sys; sys.exit(2)'", mem="1G", log_root="/tmp")
+    assert result.exit_code == 2
