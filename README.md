@@ -96,6 +96,24 @@ print(result.exit_code, result.oom)
 - `CUDA_VISIBLE_DEVICES`：在 `acquire()` 时设置；请确保在 import 深度学习框架之前调用。
 - `log_root`：默认 `/nas/logs`，无权限可改成你有权限的目录（如 `/tmp`）。
 
+
+
+### 批量 Bash 脚本
+仓库提供 `run_batch.sh`，支持批量提交、自动 tick、失败重试与日志汇总：
+
+```bash
+chmod +x run_batch.sh
+./run_batch.sh tasks.json
+```
+
+可选环境变量：
+- `HOST`：master host（默认 `127.0.0.1`）
+- `MAX_RETRY`：失败重试次数（默认 1）
+- `LOG_ROOT`：日志目录提示（默认 `/nas/logs`）
+
+## 安装
+
+```
 python -m pip install .
 ```
 
