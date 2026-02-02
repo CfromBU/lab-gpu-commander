@@ -26,6 +26,76 @@ flowchart TB
 ## 安装
 
 ```
+
+## Python SDK 使用指南
+
+适用场景：
+- 你希望在 Python 程序里“一行代码申请 GPU 并自动绑定”
+- 或者只获取调度结果（node + gpu_id），自己控制绑定与运行
+- 需要托管运行时，SDK 可以返回 exit code 与 OOM 信息
+
+### 最短上手（自动绑定）
+
+```python
+from lab_gpu import Client
+
+client = Client()
+placement = client.acquire(mem="10G")  # 默认阻塞直到分配
+print(placement.node, placement.gpu_id)
+# CUDA_VISIBLE_DEVICES 已自动设置
+```
+
+### 只获取分配结果（不改环境变量）
+
+```python
+from lab_gpu import Client
+
+client = Client()
+placement = client.request_device(mem="10G", timeout=30)
+print(placement.node, placement.gpu_id)
+```
+
+### 托管运行（SDK 负责执行命令）
+
+```python
+from lab_gpu import Client
+
+client = Client()
+result = client.run(
+    cmd="python train.py",
+    mem="10G",
+    log_root="/tmp",
+)
+print(result.exit_code, result.oom)
+```
+
+### API 说明
+
+`Client.request_device(...)`
+- `mem`：显存需求（如 "10G"）
+- `priority`：`"high"|"normal"|"low"`（默认 `"normal"`）
+- `timeout`：`None` 表示无限阻塞；`0` 表示立即失败；`>0` 为超时秒数
+- `gpu_type`：指定 GPU 型号（可选）
+- `time_limit`：回填策略用的时限（可选，秒）
+- 返回：`Placement(task_id, node, gpu_id)`
+
+`Client.acquire(...)`
+- 参数同 `request_device`
+- 额外行为：设置环境变量  
+  `CUDA_VISIBLE_DEVICES` / `LABGPU_ASSIGNED_NODE` / `LABGPU_ASSIGNED_GPU`
+
+`Client.run(...)`
+- 参数：`cmd`, `mem`, `priority`, `timeout`, `gpu_type`, `time_limit`, `env`, `log_root`, `mem_used`
+- 返回：`RunResult(exit_code, oom, stderr_tail)`
+
+### 多机预留说明
+- `Placement.node` 会返回节点名；当前本地原型为 "local"，未来接入多机后该字段即为真实节点名。
+
+### 常见问题
+- `timeout=0`：没有可用 GPU 会立即抛 `LabGpuTimeoutError`。
+- `CUDA_VISIBLE_DEVICES`：在 `acquire()` 时设置；请确保在 import 深度学习框架之前调用。
+- `log_root`：默认 `/nas/logs`，无权限可改成你有权限的目录（如 `/tmp`）。
+
 python -m pip install .
 ```
 
