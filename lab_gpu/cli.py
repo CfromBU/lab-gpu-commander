@@ -267,3 +267,17 @@ def agent_run(
 
 if __name__ == "__main__":
     app()
+
+@server_app.command("http-start")
+def server_http_start(
+    host: str = typer.Option("127.0.0.1", "--host"),
+    port: int = typer.Option(8000, "--port"),
+) -> None:
+    try:
+        from .server_api import app as server_app_http
+    except Exception as exc:  # pragma: no cover - optional dependency
+        typer.echo(f"HTTP server not available: {exc}")
+        raise typer.Exit(code=1)
+    import uvicorn
+
+    uvicorn.run(server_app_http, host=host, port=port)
