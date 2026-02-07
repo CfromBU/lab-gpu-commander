@@ -5,6 +5,9 @@ logs/
 .venv/
 .env/
 .DS_Store
+build/
+lab_gpu.egg-info/
+vscode/node_modules/
 bin/gh.tar.gz
 bin/gh_2.57.0_linux_amd64/
 .worktrees/

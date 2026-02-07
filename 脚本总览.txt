@@ -1,0 +1,164 @@
+╔══════════════════════════════════════════════════════════════╗
+║            Lab-GPU 脚本总览                                   ║
+╚══════════════════════════════════════════════════════════════╝
+
+📁 项目目录: /home/cwx/workspace/gpudirector
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🚀 可执行脚本（已全部测试通过）
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. run_examples.py ⭐ 推荐
+   用途: Python 版完整示例，交互性好
+   运行: python run_examples.py
+   特点: 
+   - 完整流程演示
+   - 提交 6 个不同优先级的任务
+   - 可选择启动 TUI 界面
+   - 错误处理完善
+
+2. run_examples_with_labgpu.sh
+   用途: Bash 版完整示例
+   运行: bash run_examples_with_labgpu.sh
+   特点:
+   - 详细的步骤说明
+   - 提交 6 个示例任务
+   - 显示所有任务 ID
+   - 提供后续操作建议
+
+3. run_examples_simple.sh ⭐ 快速测试
+   用途: 简化版，快速测试
+   运行: bash run_examples_simple.sh
+   特点:
+   - 最简洁
+   - 只提交 3 个基础任务
+   - 适合快速验证
+
+4. run_and_monitor.sh ⭐ 实时监控
+   用途: 提交任务并启动 TUI 监控
+   运行: bash run_and_monitor.sh
+   特点:
+   - 提交任务后自动启动 TUI
+   - 可实时查看任务状态
+   - 支持交互式管理
+
+5. example_workflow.sh
+   用途: 完整工作流演示（包含 tasks.json）
+   运行: bash example_workflow.sh
+   特点:
+   - 演示如何使用 tasks.json
+   - 批量任务提交示例
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📖 文档文件
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. 快速参考.txt ⭐ 日常使用
+   查看: cat 快速参考.txt
+   内容: 常用命令速查表
+
+2. 使用指南.md ⭐ 详细教程
+   查看: cat 使用指南.md
+   内容: 完整的中文使用教程
+
+3. 示例脚本说明.md
+   查看: cat 示例脚本说明.md
+   内容: 脚本使用说明和自定义方法
+
+4. quick_start.md
+   查看: cat quick_start.md
+   内容: 英文快速开始指南
+
+5. README.md
+   查看: cat README.md
+   内容: 项目完整文档
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💡 快速开始（三选一）
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+方式 1: Python 完整版（推荐新手）
+  cd /home/cwx/workspace/gpudirector
+  conda activate graphAR
+  python run_examples.py
+
+方式 2: 简化版（推荐快速测试）
+  cd /home/cwx/workspace/gpudirector
+  conda activate graphAR
+  bash run_examples_simple.sh
+
+方式 3: 监控版（推荐日常使用）
+  cd /home/cwx/workspace/gpudirector
+  conda activate graphAR
+  bash run_and_monitor.sh
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 示例任务说明
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+所有脚本使用 examples/ 目录中的示例程序：
+
+• gpu_alloc.py   - GPU 显存分配示例
+• gpu_burst.py   - 周期性显存申请/释放
+• gpu_sleep.py   - 长时间占用显存
+• gpu_oom.py     - OOM 错误模拟（测试自愈）
+
+所有示例都支持 --mock 模式，无需真实 GPU 即可运行
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎯 常用命令
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+查看状态:
+  lab-gpu status
+  lab-gpu status --json
+
+启动 TUI:
+  lab-gpu tui
+
+查看日志:
+  lab-gpu logs 1
+  lab-gpu logs 1 -f
+
+提交任务:
+  lab-gpu submit --mem 10G "python train.py"
+
+批量提交:
+  lab-gpu submit-batch --file tasks.json
+
+执行调度:
+  lab-gpu server tick
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ 安装状态
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✓ Lab-GPU 已安装到 graphAR 环境
+✓ 所有依赖项已满足
+✓ 所有测试通过 (4/4)
+✓ 所有脚本已测试
+✓ 命令行工具可用: lab-gpu
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎓 推荐学习路径
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1️⃣  运行示例脚本
+    python run_examples.py
+
+2️⃣  查看快速参考
+    cat 快速参考.txt
+
+3️⃣  阅读使用指南
+    cat 使用指南.md
+
+4️⃣  使用 TUI 管理任务
+    lab-gpu tui
+
+5️⃣  自定义任务提交
+    编辑 tasks.json 或直接使用 lab-gpu submit
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+提示: 最推荐的方式是运行 python run_examples.py 或
+      bash run_and_monitor.sh 来开始使用！

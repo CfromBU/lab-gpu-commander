@@ -1,7 +1,7 @@
 from lab_gpu.agent import Agent, ProcessSample
 from lab_gpu.master import Master
 from lab_gpu.models import GPU, Node, Priority, Task, TaskStatus
-from lab_gpu.scheduler import Scheduler
+from lab_gpu.scheduler import Scheduler, TaskProfile
 
 
 def test_scheduler_backfilling():
@@ -62,3 +62,24 @@ def test_zombie_process_detection():
     ]
     zombies = agent.detect_zombies(samples)
     assert zombies == [123]
+
+
+def test_profile_recommended_vram_used_when_missing():
+    scheduler = Scheduler()
+    scheduler.profiles["user:train"] = TaskProfile(peak_vram_gb=20, success_count=1)
+    task = Task(
+        task_id=1,
+        user="user",
+        cmd="train",
+        min_vram_gb=0,
+        priority=Priority.NORMAL,
+        profile_key="user:train",
+    )
+    scheduler.submit(task)
+
+    node_a = Node(name="A", gpus=[GPU(gpu_id=0, total_vram_gb=16, used_vram_gb=0)])
+    node_b = Node(name="B", gpus=[GPU(gpu_id=0, total_vram_gb=24, used_vram_gb=0)])
+
+    assignments = scheduler.schedule([node_a, node_b])
+    assert assignments == [(1, "B", 0)]
+    assert scheduler.state.tasks[1].min_vram_gb >= 20
