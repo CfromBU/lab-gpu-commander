@@ -67,6 +67,11 @@ class LocalBackend:
             time.sleep(0.1)
 
 
+class HttpBackend:
+    def __init__(self, base_url: str) -> None:
+        self.base_url = base_url
+
+
 class Client:
     def __init__(self, backend: Optional[LocalBackend] = None) -> None:
         self.backend = backend or LocalBackend()
