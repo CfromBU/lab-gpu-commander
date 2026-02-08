@@ -37,6 +37,7 @@ class Task:
     gpu_type: Optional[str] = None
     env: Optional[str] = None
     time_limit_s: Optional[int] = None
+    profile_key: Optional[str] = None
     submit_ts: float = field(default_factory=time.time)
     start_ts: Optional[float] = None
     retry_count: int = 0

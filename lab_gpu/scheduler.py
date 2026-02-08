@@ -9,6 +9,12 @@ from .models import Node, Priority, Task, TaskStatus, PRIORITY_WEIGHT
 
 
 @dataclass
+class TaskProfile:
+    peak_vram_gb: float
+    success_count: int = 0
+
+
+@dataclass
 class SchedulerPolicy:
     night_start: str = "00:00"
     night_end: str = "08:00"
@@ -23,12 +29,14 @@ class SchedulerState:
     tasks: Dict[int, Task] = field(default_factory=dict)
     pending_queue: List[int] = field(default_factory=list)
     active_counts: Dict[str, int] = field(default_factory=dict)
+    profiles: Dict[str, TaskProfile] = field(default_factory=dict)
 
 
 class Scheduler:
     def __init__(self, policy: Optional[SchedulerPolicy] = None) -> None:
         self.policy = policy or SchedulerPolicy()
         self.state = SchedulerState()
+        self.profiles = self.state.profiles
 
     def submit(self, task: Task) -> None:
         self.state.tasks[task.task_id] = task
@@ -69,6 +77,16 @@ class Scheduler:
         pending = [t for t in pending if t.status == TaskStatus.PENDING]
         return sorted(pending, key=lambda t: (-self._fair_share_score(t), t.submit_ts))
 
+    def _apply_profile(self, task: Task) -> None:
+        if task.min_vram_gb > 0:
+            return
+        if not task.profile_key:
+            return
+        profile = self.profiles.get(task.profile_key)
+        if not profile:
+            return
+        task.min_vram_gb = max(task.min_vram_gb, profile.peak_vram_gb)
+
     def _node_fits(self, task: Task, node: Node, gpu) -> bool:
         if task.gpu_type and node.gpu_type and task.gpu_type != node.gpu_type:
             return False
@@ -98,6 +116,7 @@ class Scheduler:
         for task in ordered:
             if task.status != TaskStatus.PENDING:
                 continue
+            self._apply_profile(task)
             if task != head and not head_schedulable:
                 if not self._backfill_ok(task) and not (self._is_night() and task.priority == Priority.LOW):
                     continue
